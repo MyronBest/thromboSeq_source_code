@@ -3,7 +3,7 @@
 # Authors       : Myron G. Best & Sjors G.J.G. In 't Veld
 # Email         : m.best@vumc.nl; g.intveld1@vumc.nl
 # Date          : 1st of September 2018
-# Revision      : None
+# Revision      : 19th of November 2018
 
 thromboSeqANOVA <- function(dge = dgeIncludedSamples,
                             k.variables = 3,
@@ -162,6 +162,9 @@ thromboSeqANOVA <- function(dge = dgeIncludedSamples,
     }     
     
     # perform clustering and store heatmap in pdf
+    if (!file.exists(figureDir)){
+      dir.create(figureDir, recursive = T)
+    }
     pdf(paste(figureDir, "/Heatmap-ANOVAtest.pdf", sep = ""))
     h <- rna.clustering(x                = normalized.counts[selected.transcripts,], 
                         margins          = c(5,2), 
