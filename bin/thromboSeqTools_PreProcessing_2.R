@@ -3,7 +3,7 @@
 # Author        : Myron G. Best & Sjors G.J.G. In 't Veld
 # Email         : m.best@vumc.nl; g.intveld1@vumc.nl
 # Date          : 1st of September 2018
-# Revision      : None
+# Revision      : 19th of November 2018
 
 collect.read.counts <- function(inputDir, 
                                 verbose = TRUE){
@@ -621,7 +621,7 @@ thromboSeqQC <- function(dge = dgeIncludedSamples,
        xaxt = 'n', 
        ylim = c(0.4, 1.0)
   )
-  abline(h = 0.5, lwd = 2)
+  abline(h = leave.sample.out.threshold, lwd = 2)
   dev.off()
   
   # exclude samples that did not pass QC filters
@@ -646,14 +646,16 @@ thromboSeqQC <- function(dge = dgeIncludedSamples,
     ]
   
   # plot and store boxplot with age distribution per group
-  # pdf(paste(figureDir, "/BoxplotAgePerGroup.pdf", sep = ""))
-  # par(mai = c(1, 1, 0.8, 1.9))
-  # boxplot(dgeIncludedSamples$samples$Age~dgeIncludedSamples$samples$group, 
-  #         ylim   = c(0, 80),
-  #         col    = c("#a8ddb5", "#43a2ca"), 
-  #         boxwex = 0.5
-  # )
-  # dev.off()
+  if('Age' %in% colnames(dgeIncludedSamples$samples)){
+  pdf(paste(figureDir, "/BoxplotAgePerGroup.pdf", sep = ""))
+  par(mai = c(1, 1, 0.8, 1.9))
+  boxplot(dgeIncludedSamples$samples$Age~dgeIncludedSamples$samples$group,
+          ylim   = c(0, 80),
+          col    = c("#a8ddb5", "#43a2ca"),
+          boxwex = 0.5
+  )
+  dev.off()
+  }
   
   # store dataset in RData file
   if (verbose == TRUE){

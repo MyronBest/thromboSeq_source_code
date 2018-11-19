@@ -3,7 +3,7 @@
 # Authors       : Myron G. Best & Sjors G.J.G. In 't Veld
 # Email         : m.best@vumc.nl; g.intveld1@vumc.nl
 # Date          : 1st of September 2018
-# Revision      : None
+# Revision      : 19th of November 2018
 
 thromboSeqPSO <- function(dge = dgeIncludedSamples,
                           percentage.for.training = 40,
@@ -18,7 +18,7 @@ thromboSeqPSO <- function(dge = dgeIncludedSamples,
                           ruvg.pvalue.threshold.group = 1e-2,
                           ruvg.pvalue.threshold.strongest.variable = 1e-2,
                           select.biomarker.FDR = FALSE,
-                          minimum.n.transcripts.biomarkerpanel = 2, # DOUBLE CHECK PLEASE
+                          minimum.n.transcripts.biomarkerpanel = 2,
                           svm.gamma.range = 2^(-20:0),
                           svm.cost.range = 2^(0:20),
                           number.cross.splits = 2,
@@ -230,7 +230,7 @@ thromboSeqPSO <- function(dge = dgeIncludedSamples,
     print("Samples selected for training series:")
     print(summary((dge[, training.samples])$samples$group))
     print("Samples selected for evaluation series:")
-    print(summary((dge[, training.samples])$samples$group))
+    print(summary((dge[, evaluation.samples])$samples$group))
   } 
   
   # store these particular variables
@@ -307,7 +307,12 @@ thromboSeqPSO <- function(dge = dgeIncludedSamples,
   colnames(logged.PSO.distribution.Index) <- c("time",swarm.parameters,"objective_function","worker")
   # for each PSO-optimization parameter plot the input value to 1-AUC-result
   # highlight the ultimate best particle in red
-  pdf(paste(workDir_main,"/figureOutputFolder/PSO_optimizationPlots.pdf",sep=""), paper="a4")
+  # generate and store plot in output folder
+  if (!file.exists(paste(workDir_main,"/",figureDir,sep=""))){
+    dir.create(paste(workDir_main,"/",figureDir,sep=""), recursive = T)
+  }
+  
+  pdf(paste(workDir_main,"/",figureDir,"/PSO_optimizationPlots.pdf",sep=""), paper="a4")
   par(mfrow=c(2,2))
   for (parameter in swarm.parameters){
     plot(logged.PSO.distribution[,parameter],logged.PSO.distribution$objective_function,
@@ -601,7 +606,7 @@ thrombo.algo <- function(x){
                             )
         perfa <- performance(rocra, "tpr", "fpr")
         if (verbose == TRUE){
-          print(paste("AUC Training Series: ", attributes(performance(rocra, 'auc'))$y.values[[1]], 
+          print(paste("AUC Evaluation Series: ", attributes(performance(rocra, 'auc'))$y.values[[1]], 
                       sep = ""))
         }
         roc.summary <- data.frame(
@@ -1989,7 +1994,7 @@ thrombo.algo.classify.validation.set <- function(dge = dgeIncludedSamples,
   # summarize data
   result <- list()
   result[["samples.for.training"]] <- training.samples
-  result[["samples.for.evaluation"]] <- validation.samples
+  result[["samples.for.validation"]] <- validation.samples
   result[["biomarker.panel.size"]] <- length(dgeParticle$biomarker.transcripts)
   result[["ruv.confounding.axes"]] <- dgeParticle$axis.confounding
   result[["svm.summary"]] <- svm.summary
